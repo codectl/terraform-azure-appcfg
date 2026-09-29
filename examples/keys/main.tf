@@ -1,25 +1,34 @@
 module "naming" {
-  source  = "cloudnationhq/naming/azure"
-  version = "~> 0.32"
+  source  = "codectl/naming/azure"
+  version = "~> 0.1"
 
   suffix = ["demo", "dev"]
 }
 
+module "regions" {
+  source  = "codectl/locations/azure"
+  version = "~> 1.0"
+
+  location = {
+    primary = "westeurope"
+  }
+}
+
 module "rg" {
-  source  = "cloudnationhq/rg/azure"
-  version = "~> 3.0"
+  source  = "codectl/rg/azure"
+  version = "~> 1.0"
 
   groups = {
     demo = {
       name     = module.naming.resource_group.name_unique
-      location = "westeurope"
+      location = module.regions.location.primary.name
     }
   }
 }
 
 module "kv" {
-  source  = "cloudnationhq/kv/azure"
-  version = "~> 6.0"
+  source  = "codectl/kv/azure"
+  version = "~> 1.0"
 
 
   vault = {
@@ -47,8 +56,8 @@ module "kv" {
 }
 
 module "storage1" {
-  source  = "cloudnationhq/sa/azure"
-  version = "~> 5.0"
+  source  = "codectl/sa/azure"
+  version = "~> 1.0"
 
   storage = {
     name                = module.naming.storage_account.name_unique
@@ -58,8 +67,8 @@ module "storage1" {
 }
 
 module "storage2" {
-  source  = "cloudnationhq/sa/azure"
-  version = "~> 5.0"
+  source  = "codectl/sa/azure"
+  version = "~> 1.0"
 
   storage = {
     name                = "${module.naming.storage_account.name_unique}2"
@@ -69,8 +78,8 @@ module "storage2" {
 }
 
 module "keys" {
-  source  = "cloudnationhq/appcfg/azure//modules/keys"
-  version = "~> 3.0"
+  source  = "codectl/appcfg/azure//modules/keys"
+  version = "~> 1.0"
 
   configuration_store_id = module.app_configuration.configs.dev.id
 
@@ -97,8 +106,8 @@ module "keys" {
 }
 
 module "app_configuration" {
-  source  = "cloudnationhq/appcfg/azure"
-  version = "~> 3.0"
+  source  = "codectl/appcfg/azure"
+  version = "~> 1.0"
 
   resource_group_name = module.rg.groups.demo.name
   location            = module.rg.groups.demo.location
